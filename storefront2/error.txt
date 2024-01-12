@@ -1,0 +1,10 @@
+pass:
+admin
+admin@123
+admin@domain.com
+
+in part 2, section 5
+python manage.py makemigrations core
+python manage.py makemigrations store
+python manage.py migrate
+

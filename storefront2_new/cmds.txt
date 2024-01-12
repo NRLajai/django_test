@@ -1,0 +1,118 @@
+pipenv install djangorestframework
+
+
+
+normal functionality
+api views
+mixin but not directly use it, instead we use generic views
+viewsets - go with routers  
+
+CODE RULES:
+      1. Do one job at a time
+      2. Each function has separate role, dont make chief has to server the food
+      3. Make reuseable code
+      4. Make Independent code, so we can use another project
+
+part 0
+create project - django-admin startproject storefront.
+create app     - python3 manage.py startapp playground
+
+part 1
+4.11     - Dummy data creation through mockaroo.com
+5.19 ORM - shows hows associate class linked, and when to use select_realated, prefetch_related()
+            - usually when only id is present, and actual data exists in another table, we use select_realated(), if not it will end up multiple times queries
+6.2 ADMIN - python3 manage.py createsuperuser
+
+part 2
+2.16  - get data through reverse relationships (foreign key)
+2.17 - get data through reverse relationships (foreign key)
+    - used queryset inside get_object_or_404()
+     collection = get_object_or_404(Collection.objects.annotate(products_count=Count("products").all()), pk=pk)
+
+3.2 - for class based APIView, have to get data from db for each function, that is only different
+      product = get_object_or_404(Product, pk=id)
+3.5 - while use mixin for product details class, use we Product.objects.all(), before we used 
+      get_object_or_404(Product, pk=id)
+      also collection details query get change, not include pk
+3.7  - simple router, default router
+      http://127.0.0.1:8000/store/products.json - to access like json objects
+
+      there is issue , to remove delete button from product list, we use 
+      def destroy() from DestroyMixin
+
+3.9 - nested router, 
+      lookup, basename ?
+      talk about lookup
+      override create() in serializer
+      return review of particular product
+
+3.10 - talk about url basename
+      django defaultly figure out basename by queryset attribute, we deleted it, so maunally set it
+
+4.3  - make unique product in cart (dont duplicate/add same product in cart)
+       create reverse order with foreign key
+4.4  - create custom viewset
+       create read_only field in serializer/response
+4.5  - add total_price and total_price/grand_total custom field 
+      [*] and get data in reverse order 
+4.7  - learned when to use card_id, reverse_order data retrive in queryset
+4.8  - customize serializer save() for update product qty instead add second time
+       create(), update()
+       validate data in save()
+       serializer cannot access url query params, so we pass through context of views
+      [*] validate user data in serializer
+      set input data of qty greater than zero 
+4.9  - Update only qty value through serializer
+       [*] add http_method_names
+
+5.2  - middleware work like hook
+5.4  - once change app name, things to change later 
+      [**] always create custom user model at begin
+      [*] create admin page for core user model
+5.5 ADMIN - add sorting in core first_name and last_name, in models.py
+            add user__first_name and user__last_name in admin.py to sort name from associate model [5.40]
+5.6 ADMIN - staff user to access admin site
+5.7 ADMIN - create custom permissions
+
+6.5 - create serializer for profile with only get, post, update
+6.10 - [**] call me() [custom action] method through url customer/me
+6.11 - [**] set permissions for actions,
+            set permissions for different methods GET to allowany, POST to authenticate
+6.12 - [**] in customerviewset, all methods access by admin, but for authenticated user only GET to allow
+6.13 - [**] Django model permissions for to set group permissions
+
+7.3 SERIALIZER - [*] add items field in order serializer, here items not existing in order model, so fetch through associated model
+7.4 MODEL - [*] get_or_create() method
+7.5 SERIALIZER - [*] create order with cart_id, but order model has no cart_id, so use base serializer not model serializer
+               - pass user_id through context to serializer, serializer only can access validated_data
+7.6 SERIALIZER - [**] create orderitems maunally with cart_id, 
+                      create orderitem instance with cart_item
+                      use bulk_create() to avoid multiple query to DB
+    TRANSACTION       use transaction for atomic feature
+7.7 VIEWS      - [***] create() in views to return created order, for that we override create() in views
+7.11 - signals
+      pre save, post save
+      pre delete, post delete
+     - instead we create customer in serializer create() in core serializer, use signals
+
+
+part 3
+celery 
+celery beat (periodic tasks)
+celery monitor task with flower/flo-wer
+
+test
+      - in tests.py ,class name start with "Test" TestCustomer, else django cant recognize
+      - # AAA (Arrange, Act, Assert) 
+            Arrange means create object with orm (prepare system)
+            Act means send data to server (test behavior)
+            Assert means check response data (check response)
+      - [*] debug through vscode
+      - [*] authenticate user in test
+      - [*] skip tests
+
+38 - fixture for reuseable code
+   - shows AAA after complete fixture 
+39 - model_bakery for create data instead collection.objects.create()
+   - tests to access db with @pytest.mark.django_db
+   - [**] how test add data and remove data after test completes
